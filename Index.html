@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>✨ Quote Generator ✨</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Georgia,serif}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#4158D0 0%,#C850C0 100%);padding:20px}
+.container{background:#fff;border-radius:24px;padding:45px 40px;max-width:650px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center;position:relative;animation:fadeIn .8s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.container::before{content:'"';position:absolute;top:10px;left:25px;font-size:120px;color:rgba(65,88,208,.08);font-family:Georgia}
+h1{color:#333;font-size:1.8rem;margin-bottom:10px}
+.count{color:#888;font-size:.95rem;margin-bottom:30px}
+.quote-box{min-height:160px;padding:25px 15px;margin-bottom:25px}
+#quote{font-size:1.45rem;line-height:1.8;color:#2d3748;transition:opacity .4s ease}
+#author{font-size:1.1rem;color:#718096;font-style:italic;margin-top:20px;display:block}
+.buttons{display:flex;gap:15px;flex-wrap:wrap;justify-content:center}
+button{padding:16px 32px;border:none;border-radius:50px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .3s ease;box-shadow:0 4px 15px rgba(0,0,0,.12)}
+#new-quote{background:linear-gradient(135deg,#4158D0 0%,#C850C0 100%);color:#fff}
+#new-quote:hover{transform:translateY(-3px)}
+#copy-quote{background:#f7fafc;color:#4a5568;border:2px solid #e2e8f0}
+#copy-quote:hover{background:#edf2f7;transform:translateY(-3px)}
+.copied{background:#48bb78!important;color:#fff!important;border-color:#48bb78!important}
+@media(max-width:500px){.container{padding:30px 20px}#quote{font-size:1.15rem}button{padding:14px 24px;width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>✨ Infinite Quotes ✨</h1>
+<p class="count" id="quote-count">Loading quotes...</p>
+<div class="quote-box"><div><p id="quote">📥 Loading...</p><span id="author"></span></div></div>
+<div class="buttons">
+<button id="new-quote">💫 New Quote</button>
+<button id="copy-quote">📋 Copy Quote</button>
+</div>
+</div>
+<script>
+let allQuotes=[],currTxt="",currAuth="";
+async function loadQuotes(){
+  try{
+    allQuotes=await(await fetch("quotes.json")).json();
+    document.getElementById("quote-count").textContent=`📚 ${allQuotes.length} quotes loaded`;
+    showQuote();
+  }catch(e){document.getElementById("quote").textContent="❌ quotes.json missing — run the crawler!"}
+}
+function showQuote(){
+  if(!allQuotes.length)return;
+  const q=allQuotes[Math.floor(Math.random()*allQuotes.length)];
+  document.getElementById("quote").style.opacity=0;
+  setTimeout(()=>{currTxt=q.text;currAuth=q.author;document.getElementById("quote").textContent=currTxt;document.getElementById("author").textContent="— "+currAuth;document.getElementById("quote").style.opacity=1},200);
+}
+async function copyQuote(){
+  try{
+    await navigator.clipboard.writeText(`"${currTxt}" — ${currAuth}`);
+    const b=document.getElementById("copy-quote");b.classList.add("copied");b.textContent="✅ Copied!";
+    setTimeout(()=>{b.classList.remove("copied");b.textContent="📋 Copy Quote"},2000);
+  }catch(e){alert("Copy failed!")}
+}
+document.getElementById("new-quote").addEventListener("click",showQuote);
+document.getElementById("copy-quote").addEventListener("click",copyQuote);
+loadQuotes();
+</script>
+</body>
+</html>
